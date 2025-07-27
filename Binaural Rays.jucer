@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="V9Mbcs" name="Binaural Rays" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+  <MAINGROUP id="Ncwt5f" name="Binaural Rays">
+    <GROUP id="{83C67DE7-634F-9084-C45A-2C3021045D53}" name="Source">
+      <FILE id="eFQb2J" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
+      <FILE id="e0c8SP" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
+      <FILE id="R0xajG" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
+      <FILE id="wFXmFt" name="SynthParameters.cpp" compile="1" resource="0"
+            file="Source/SynthParameters.cpp"/>
+      <FILE id="Q5rRB2" name="SynthParameters.h" compile="0" resource="0"
+            file="Source/SynthParameters.h"/>
+      <FILE id="uA1TYp" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="UxcBxS" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="OCvqbI" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="RzVRAV" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+    </GROUP>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_dsp" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Binaural Rays"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Binaural Rays"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_dsp" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../Users/Carlos/Documents/JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../Users/Carlos/Documents/JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
