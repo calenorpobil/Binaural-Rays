@@ -59,16 +59,29 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
     gain.prepare(spec);
     gain.setGainLinear(0.1f);
 
+    synthBuffer.setSize(outputChannels, samplesPerBlock);
+
     isPrepared = true;
 }
 
 void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startSample, int numSamples)
 {
     jassert(isPrepared);
+
+
+    if (!isVoiceActive())
+        return;
+
+
+    // Clear our internal buffer (stereo)
+    synthBuffer.clear();
+
+    // Pitch Oscillator
+    float currentFreq = 400;
+    float lfoSpeedFloat = lfoSpeed->load();
+    float minFreqFloat = minFreq->load();
+    float maxFreqFloat = maxFreq->load();
     if (lfoSpeed != nullptr && minFreq != nullptr) {
-        float lfoSpeedFloat = lfoSpeed->load();
-        float minFreqFloat = minFreq->load();
-        float maxFreqFloat = maxFreq->load();
 
         // Velocidad del cambio de pitch
         lfoPhase += 2000*lfoSpeedFloat / currentSampleRate;
@@ -81,18 +94,36 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
 
         // 2. Calcular frecuencia actual
         const float lfoValue = std::sin(2.0f * juce::MathConstants<float>::pi * lfoPhase);
-        const float currentFreq = minFreqFloat + (maxFreqFloat - minFreqFloat) * (0.5f + 0.5f * lfoValue);
+        currentFreq = minFreqFloat + (maxFreqFloat - minFreqFloat) * (0.5f + 0.5f * lfoValue);
 
 
-        osc.setFrequency(currentFreq);
 
     }
 
-    juce::dsp::AudioBlock<float> audioBlock{ outputBuffer };
+
+    juce::dsp::AudioBlock<float> audioBlock{ synthBuffer };
     osc.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
     gain.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+    adsr.applyEnvelopeToBuffer(synthBuffer, startSample, synthBuffer.getNumSamples());
 
-    adsr.applyEnvelopeToBuffer(outputBuffer, startSample, numSamples);
+    // Handles stereo
+    for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
+    {
+        if (channel == 0) {
+            osc.setFrequency(currentFreq);
+        } else {
+            osc.setFrequency(currentFreq+400);
+        }
+
+
+        outputBuffer.addFrom(channel, startSample,
+            synthBuffer, channel % synthBuffer.getNumChannels(),
+            0, numSamples);
+    }
+
+
+    if (!adsr.isActive())
+        clearCurrentNote();
 
 }
 

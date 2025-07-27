@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <JUCERPROJECT id="V9Mbcs" name="Binaural Rays" projectType="audioplug" useAppConfig="0"
-              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginCharacteristicsValue="pluginIsSynth">
   <MAINGROUP id="Ncwt5f" name="Binaural Rays">
     <GROUP id="{83C67DE7-634F-9084-C45A-2C3021045D53}" name="Source">
       <FILE id="eFQb2J" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
