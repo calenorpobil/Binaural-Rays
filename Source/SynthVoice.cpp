@@ -20,6 +20,8 @@ void SynthVoice::startNote(int midiNoteNumber, float velocity, juce::Synthesiser
 {
     osc.setFrequency(juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber));
     adsr.noteOn();
+    delayLeft.reset();
+    delayRight.reset();
 }
 
 void SynthVoice::stopNote(float velocity, bool allowTailOff)
@@ -61,6 +63,10 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
 
     synthBuffer.setSize(outputChannels, samplesPerBlock);
 
+    // Prepare delay lines
+    delayLeft.prepare(spec);
+    delayRight.prepare(spec);
+
     isPrepared = true;
 }
 
@@ -71,6 +77,13 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
 
     if (!isVoiceActive())
         return;
+
+
+    // Create a temporary mono buffer for oscillator output
+    juce::AudioBuffer<float> monoBuffer(1, numSamples);
+    monoBuffer.clear();
+
+
 
 
     // Clear our internal buffer (stereo)
@@ -97,6 +110,7 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
         currentFreq = minFreqFloat + (maxFreqFloat - minFreqFloat) * (0.5f + 0.5f * lfoValue);
 
 
+        osc.setFrequency(currentFreq);
 
     }
 
@@ -105,21 +119,16 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
     osc.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
     gain.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
     adsr.applyEnvelopeToBuffer(synthBuffer, startSample, synthBuffer.getNumSamples());
-
     // Handles stereo
     for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
     {
-        if (channel == 0) {
-            osc.setFrequency(currentFreq);
-        } else {
-            osc.setFrequency(currentFreq+400);
-        }
 
 
         outputBuffer.addFrom(channel, startSample,
             synthBuffer, channel % synthBuffer.getNumChannels(),
             0, numSamples);
     }
+
 
 
     if (!adsr.isActive())

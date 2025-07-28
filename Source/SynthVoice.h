@@ -34,6 +34,9 @@ public:
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
     void renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startSample, int numSamples) override;
 
+    void setLeftDelayTime(float delayMs);
+    void setRightDelayTime(float delayMs);
+
 private:
     juce::ADSR adsr;
     juce::ADSR::Parameters adsrParams;
@@ -43,6 +46,8 @@ private:
     std::atomic<float>* minFreq = nullptr;
     std::atomic<float>* maxFreq = nullptr;
 
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> delayLeft;
+    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> delayRight;
 
     juce::dsp::Oscillator<float> osc{ [](float x) { return std::sin(x); } };
     juce::dsp::Gain<float> gain;
