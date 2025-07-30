@@ -142,24 +142,27 @@ void TapSynthAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
     // Play C4 on start:
     synth.noteOn(midiChannel, midiNoteNumber, velocity);
 
-    // Delay code:
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
     spec.maximumBlockSize = samplesPerBlock;
     spec.numChannels = 2;
 
+    // Delay code:
     delayLineL.reset(); // left channel
     delayLineR.reset(); // right channel
     delayLineL.prepare(spec);
     delayLineR.prepare(spec);
 
     // Resize 
-    delayLineL.setMaximumDelayInSamples((int)(sampleRate * 2.0)); // seconds max
+    delayLineL.setMaximumDelayInSamples((int)(sampleRate * 2.0)); // delay max seconds 
     delayLineR.setMaximumDelayInSamples((int)(sampleRate * 2.0));
 
     delayLineL.setDelay(0.01);
     delayLineR.setDelay(0.01);
 
+    // Psychoacoustic gain
+    gainL.prepare(spec);
+    gainL.setGainLinear(1.0f);
 }
 
 
@@ -200,14 +203,21 @@ void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     minFreq = apvts->getRawParameterValue("minFreq")->load();
     maxFreq = apvts->getRawParameterValue("maxFreq")->load();
     lfoSpeed = apvts->getRawParameterValue("lfoSpeed")->load();
-    leftDelayMs = apvts->getRawParameterValue("x")->load();
-    rightDelayMs = apvts->getRawParameterValue("y")->load();
+    horizontalPosition = apvts->getRawParameterValue("x")->load();
+    verticalPosition = apvts->getRawParameterValue("y")->load();
 
-    float leftD = (currentSampleRate / 1000.0f)* leftDelayMs;
-    float rightD = (currentSampleRate / 1000.0f)* rightDelayMs;
+    lDistance = sqrt(juce::square(horizontalPosition - leftEarX) + juce::square(leftEarY - verticalPosition));
+    rDistance = sqrt(juce::square(horizontalPosition - rightEarX) + juce::square(rightEarY - verticalPosition));
 
+    float leftD = (currentSampleRate / 1000.0f)* lDistance;
+    float rightD = (currentSampleRate / 1000.0f)* rDistance;
+    
     delayLineL.setDelay(leftD);
     delayLineR.setDelay(rightD);
+    float gainLValue = (maxDistance - lDistance) / maxDistance;
+    float gainRValue = (maxDistance - rDistance) / maxDistance;
+    gainL.setGainLinear(gainLValue);
+    gainR.setGainLinear(gainRValue);
 
     // Primitive sequencer
     msCount = time.getMillisecondCounterHiRes();
@@ -246,6 +256,10 @@ void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     {
         auto* channelData = buffer.getWritePointer(channel);
 
+        float gain = (channel == 0) ? gainLValue : gainRValue;
+
+        buffer.applyGain(channel, 0, buffer.getNumSamples(), gain);
+
         for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
         {
             float inputSample = channelData[sample];
@@ -258,10 +272,11 @@ void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
             channelData[sample] =  delayedSample;
 
             // Push new sample into delay buffer
-            if (channel == 0)
+            if (channel == 0) {
                 delayLineL.pushSample(0, inputSample);
-            else
+            } else {
                 delayLineR.pushSample(0, inputSample);
+            }
         }
     }
 }

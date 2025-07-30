@@ -46,9 +46,6 @@ private:
     std::atomic<float>* minFreq = nullptr;
     std::atomic<float>* maxFreq = nullptr;
 
-    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> delayLeft;
-    juce::dsp::DelayLine<float, juce::dsp::DelayLineInterpolationTypes::Linear> delayRight;
-
     juce::dsp::Oscillator<float> osc{ [](float x) { return std::sin(x); } };
     juce::dsp::Gain<float> gain;
     // return std::sin(x); } };                           Sin wave oscillator

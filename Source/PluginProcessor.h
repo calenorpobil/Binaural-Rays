@@ -68,6 +68,8 @@ private:
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
     juce::dsp::DelayLine<float> delayLineL{ 48000 };
     juce::dsp::DelayLine<float> delayLineR{ 48000 };
+    juce::dsp::Gain<float> gainL;
+    juce::dsp::Gain<float> gainR;
 
     bool shouldPlayNote = true;
     
@@ -84,8 +86,16 @@ private:
     const int midiNoteNumber = 20; // C4
     const float velocity = 0.2f;
 
-    float leftDelayMs = 0.0f;
-    float rightDelayMs = 20.0f;
+    float horizontalPosition = 0.0f;
+    float verticalPosition = 20.0f;
+
+    float maxDistance = 100.0f;
+    float rightEarX = (maxDistance / 2) + 0.2f * maxDistance;
+    float leftEarX = (maxDistance / 2) - 0.2f * maxDistance;
+    float rightEarY = 50;
+    float leftEarY = 50;
+    float rDistance;
+    float lDistance;
 
     
     //==============================================================================
