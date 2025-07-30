@@ -18,7 +18,7 @@ class SynthVoice : public juce::SynthesiserVoice
 public:
     SynthVoice()
     {
-        adsrParams.attack = 0.0f;
+        adsrParams.attack = 0.05f;
         adsrParams.decay = 0.1f;
         adsrParams.sustain = 0.1f;
         adsrParams.release = 0.1f;

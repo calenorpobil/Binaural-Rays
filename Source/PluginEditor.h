@@ -29,20 +29,37 @@ private:
     // access the processor object that created it.
     TapSynthAudioProcessor& audioProcessor;
 
+    // Min Slider
     juce::Slider minFreqSlider;
-    juce::Slider maxFreqSlider;
     juce::Label minLabel;
+    // Max Slider
+    juce::Slider maxFreqSlider;
     juce::Label maxLabel;
+    // LFO Slider
     juce::Slider lfoSpeedSlider;
     juce::Label lfoSpeedLabel;
+    // Gain Slider
     juce::Slider gainSlider;
     juce::Label gainLabel;
+    // X Slider
+    juce::Slider xSlider;
+    juce::Label xLabel;
+    // Y Slider
+    juce::Slider ySlider;
+    juce::Label yLabel;
+    // Z Slider
+    juce::Slider zSlider;
+    juce::Label zLabel;
+
+
+
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lfoSpeedAttachment;
-
-
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> minFreqAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> maxFreqAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> gainAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> xAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> yAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> zAttachment;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TapSynthAudioProcessorEditor)

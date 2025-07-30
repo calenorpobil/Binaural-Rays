@@ -66,6 +66,8 @@ private:
     
     std::unique_ptr<juce::AudioProcessorValueTreeState> apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
+    juce::dsp::DelayLine<float> delayLineL{ 48000 };
+    juce::dsp::DelayLine<float> delayLineR{ 48000 };
 
     bool shouldPlayNote = true;
     
@@ -81,6 +83,9 @@ private:
     const int midiChannel = 1;
     const int midiNoteNumber = 20; // C4
     const float velocity = 0.2f;
+
+    float leftDelayMs = 0.0f;
+    float rightDelayMs = 20.0f;
 
     
     //==============================================================================

@@ -39,11 +39,22 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
     // Configurar sliders
     minFreqSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     minFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
-    addAndMakeVisible(minFreqSlider);
 
     maxFreqSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     maxFreqSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+
+    xSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    xSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    ySlider.setSliderStyle(juce::Slider::LinearVertical);
+    ySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    zSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    zSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+
+    addAndMakeVisible(minFreqSlider);
     addAndMakeVisible(maxFreqSlider);
+    addAndMakeVisible(xSlider);
+    addAndMakeVisible(ySlider);
+    addAndMakeVisible(zSlider);
 
     // Configurar labels
     minLabel.setText("Minimum Pitch (Hz)", juce::dontSendNotification);
@@ -56,7 +67,22 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
     maxLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(maxLabel);
 
-    // Vincular sliders a partros (CORRECCIN CLAVE)
+    xLabel.setText("X", juce::dontSendNotification);
+    xLabel.attachToComponent(&xSlider, false);
+    xLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(xLabel);
+
+    yLabel.setText("X", juce::dontSendNotification);
+    yLabel.attachToComponent(&xSlider, false);
+    yLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(yLabel);
+
+    zLabel.setText("X", juce::dontSendNotification);
+    zLabel.attachToComponent(&zSlider, false);
+    zLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(zLabel);
+
+    // Vincular sliders a etiquetas
     minFreqAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
         audioProcessor.getState(), "minFreq", minFreqSlider));
 
@@ -67,11 +93,19 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
         audioProcessor.getState(),
         "lfoSpeed", lfoSpeedSlider));
 
-    gainAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
+    xAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
         audioProcessor.getState(),
-        "gain", gainSlider));
+        "x", xSlider));
 
-    setSize (400, 300);
+    yAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
+        audioProcessor.getState(),
+        "y", ySlider));
+
+    zAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
+        audioProcessor.getState(),
+        "z", zSlider));
+
+    setSize (400, 500);
 }
 
 TapSynthAudioProcessorEditor::~TapSynthAudioProcessorEditor()
@@ -91,6 +125,10 @@ void TapSynthAudioProcessorEditor::resized()
     const int sliderHeight = 150;
 
     minFreqSlider.setBounds(margin, 40, sliderWidth, sliderHeight);
-    maxFreqSlider.setBounds(getWidth() - sliderWidth - margin, 40, sliderWidth, sliderHeight);
     lfoSpeedSlider.setBounds(getWidth() / 2 - sliderWidth / 2, 40, sliderWidth, sliderWidth);
+    maxFreqSlider.setBounds(getWidth() - sliderWidth - margin, 40, sliderWidth, sliderHeight);
+
+    xSlider.setBounds(margin, getHeight()/2, sliderWidth, sliderHeight);
+    ySlider.setBounds(getWidth() / 2 - sliderWidth / 2, getHeight()/2, sliderWidth, sliderWidth);
+    zSlider.setBounds(getWidth() - sliderWidth - margin, getHeight()/2, sliderWidth, sliderHeight);
 }

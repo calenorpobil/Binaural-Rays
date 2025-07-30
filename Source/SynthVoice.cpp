@@ -59,13 +59,12 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
 
     osc.prepare(spec);
     gain.prepare(spec);
-    gain.setGainLinear(0.1f);
-
-    synthBuffer.setSize(outputChannels, samplesPerBlock);
-
+    gain.setGainLinear(0.3f);
     // Prepare delay lines
     delayLeft.prepare(spec);
     delayRight.prepare(spec);
+
+    synthBuffer.setSize(outputChannels, samplesPerBlock);
 
     isPrepared = true;
 }
@@ -78,13 +77,9 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
     if (!isVoiceActive())
         return;
 
-
     // Create a temporary mono buffer for oscillator output
     juce::AudioBuffer<float> monoBuffer(1, numSamples);
     monoBuffer.clear();
-
-
-
 
     // Clear our internal buffer (stereo)
     synthBuffer.clear();
@@ -116,6 +111,8 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
 
 
     juce::dsp::AudioBlock<float> audioBlock{ synthBuffer };
+    delayLeft.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
+    delayRight.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
     osc.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
     gain.process(juce::dsp::ProcessContextReplacing<float>(audioBlock));
     adsr.applyEnvelopeToBuffer(synthBuffer, startSample, synthBuffer.getNumSamples());

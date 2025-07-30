@@ -13,14 +13,14 @@
 //==============================================================================
 TapSynthAudioProcessor::TapSynthAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), false)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), false)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    )
 #endif
 {
     synth.addSound(new SynthSound());
@@ -51,6 +51,18 @@ juce::AudioProcessorValueTreeState::ParameterLayout TapSynthAudioProcessor::crea
         "maxFreq", "Maximum Frequency",
         juce::NormalisableRange<float>(50.0f, 4000.0f, 1.0f), 500.0f));
 
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "x", "X",
+        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "y", "Y",
+        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 0.0f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "z", "Z",
+        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 0.0f));
+
     return { params.begin(), params.end() };
 }
 
@@ -62,29 +74,29 @@ const juce::String TapSynthAudioProcessor::getName() const
 
 bool TapSynthAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool TapSynthAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool TapSynthAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double TapSynthAudioProcessor::getTailLengthSeconds() const
@@ -95,7 +107,7 @@ double TapSynthAudioProcessor::getTailLengthSeconds() const
 int TapSynthAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int TapSynthAudioProcessor::getCurrentProgram()
@@ -103,21 +115,21 @@ int TapSynthAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void TapSynthAudioProcessor::setCurrentProgram (int index)
+void TapSynthAudioProcessor::setCurrentProgram(int index)
 {
 }
 
-const juce::String TapSynthAudioProcessor::getProgramName (int index)
+const juce::String TapSynthAudioProcessor::getProgramName(int index)
 {
     return {};
 }
 
-void TapSynthAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void TapSynthAudioProcessor::changeProgramName(int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void TapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void TapSynthAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     synth.setCurrentPlaybackSampleRate(sampleRate);
 
@@ -127,8 +139,26 @@ void TapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
             voice->prepareToPlay(sampleRate, samplesPerBlock, getTotalNumOutputChannels());
     }
 
-    // Toca la nota C4 al arrancar
+    // Play C4 on start:
     synth.noteOn(midiChannel, midiNoteNumber, velocity);
+
+    // Delay code:
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = samplesPerBlock;
+    spec.numChannels = 2;
+
+    delayLineL.reset(); // left channel
+    delayLineR.reset(); // right channel
+    delayLineL.prepare(spec);
+    delayLineR.prepare(spec);
+
+    // Resize 
+    delayLineL.setMaximumDelayInSamples((int)(sampleRate * 2.0)); // seconds max
+    delayLineR.setMaximumDelayInSamples((int)(sampleRate * 2.0));
+
+    delayLineL.setDelay(0.01);
+    delayLineR.setDelay(0.01);
 
 }
 
@@ -140,39 +170,47 @@ void TapSynthAudioProcessor::releaseResources()
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool TapSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool TapSynthAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
+#if JucePlugin_IsMidiEffect
+    juce::ignoreUnused(layouts);
     return true;
-  #else
+#else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
     // Some plugin hosts, such as certain GarageBand versions, will only
     // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
+#endif
 
     return true;
-  #endif
+#endif
 }
 #endif
 
-void TapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     minFreq = apvts->getRawParameterValue("minFreq")->load();
     maxFreq = apvts->getRawParameterValue("maxFreq")->load();
     lfoSpeed = apvts->getRawParameterValue("lfoSpeed")->load();
+    leftDelayMs = apvts->getRawParameterValue("x")->load();
+    rightDelayMs = apvts->getRawParameterValue("y")->load();
 
-    msCount = time.getMillisecondCounterHiRes();
+    float leftD = (currentSampleRate / 1000.0f)* leftDelayMs;
+    float rightD = (currentSampleRate / 1000.0f)* rightDelayMs;
+
+    delayLineL.setDelay(leftD);
+    delayLineR.setDelay(rightD);
+
     // Primitive sequencer
+    msCount = time.getMillisecondCounterHiRes();
     msCount = ((msCount % 1000) / 100);
     if (msCount % 2 == 0) {
         synth.noteOff(midiChannel, midiNoteNumber, velocity, true);
@@ -182,21 +220,15 @@ void TapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     }
 
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
-    
+
     const int numSamples = buffer.getNumSamples();
     float currentFreq;
-    
+
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
     {
-        buffer.clear (i, 0, numSamples);
-        
-        for (int i = 0; i < numSamples; ++i)
-        {
-
-
-        }
+        buffer.clear(i, 0, numSamples);
     }
 
     // Send parameters to the Synth's voice:
@@ -209,6 +241,29 @@ void TapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     }
 
     synth.renderNextBlock(buffer, midiMessages, 0, buffer.getNumSamples());
+
+    for (int channel = 0; channel < buffer.getNumChannels(); ++channel)
+    {
+        auto* channelData = buffer.getWritePointer(channel);
+
+        for (int sample = 0; sample < buffer.getNumSamples(); ++sample)
+        {
+            float inputSample = channelData[sample];
+
+            float delayedSample = (channel == 0)
+                ? delayLineL.popSample(0)
+                : delayLineR.popSample(0);
+
+            //channelData[sample] = inputSample + 0.5f * delayedSample;
+            channelData[sample] =  delayedSample;
+
+            // Push new sample into delay buffer
+            if (channel == 0)
+                delayLineL.pushSample(0, inputSample);
+            else
+                delayLineR.pushSample(0, inputSample);
+        }
+    }
 }
 
 
@@ -220,18 +275,18 @@ bool TapSynthAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* TapSynthAudioProcessor::createEditor()
 {
-    return new TapSynthAudioProcessorEditor (*this);
+    return new TapSynthAudioProcessorEditor(*this);
 }
 
 //==============================================================================
-void TapSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void TapSynthAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void TapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void TapSynthAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
