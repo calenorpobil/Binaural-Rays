@@ -219,7 +219,7 @@ void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     rDistance = sqrt(juce::square(horizontalPosition - rightEarX) + juce::square(rightEarY - verticalPosition));
 
     // Normalized distance relative to the maxDistance, from 0 to 100:
-    float maxDistanceToEar = sqrt(juce::square(maxDistance - leftEarX) + juce::square(maxDistanceToEar - leftEarY));
+    float maxDistanceToEar = sqrt(juce::square(maxDistance - leftEarX) + juce::square(maxDistance - leftEarY));
     lDistance = 100 * lDistance / maxDistanceToEar;
     rDistance = 100 * rDistance / maxDistanceToEar;
 
@@ -227,9 +227,8 @@ void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     lDistance = lDistance * dimension/100;
     rDistance = rDistance * dimension/100;
 
-
-    float leftD = (currentSampleRate / 1000.0f)* lDistance*100;
-    float rightD = (currentSampleRate / 1000.0f)* rDistance*100;
+    float leftD = (currentSampleRate / 1000.0f)* lDistance*343;
+    float rightD = (currentSampleRate / 1000.0f)* rDistance*343;
     
     delayLineL.setDelay(leftD);
     delayLineR.setDelay(rightD);
