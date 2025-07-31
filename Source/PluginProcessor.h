@@ -85,12 +85,14 @@ private:
     float horizontalPosition = 0.0f;
     float verticalPosition = 20.0f;
     float zDepth;
+    float dimension;
 
     const int midiChannel = 1;
     const int midiNoteNumber = 20; // C4
     const float velocity = 0.2f;
 
-
+    // maxDistance is the distance from the upper left to the upper right corner of the virtual square, 
+    // and all the other dimensions are derived from it. 
     float maxDistance = 100.0f;
     float rightEarX = (maxDistance / 2) + 0.2f * maxDistance;
     float leftEarX = (maxDistance / 2) - 0.2f * maxDistance;

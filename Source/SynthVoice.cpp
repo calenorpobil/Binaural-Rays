@@ -42,7 +42,7 @@ void SynthVoice::updateParams(const juce::AudioProcessorValueTreeState& apvts)
     lfoSpeed = apvts.getRawParameterValue("lfoSpeed");
     minFreq = apvts.getRawParameterValue("minFreq");
     maxFreq = apvts.getRawParameterValue("maxFreq");
-    zDepth = apvts.getRawParameterValue("z");
+    zDepth = apvts.getRawParameterValue("gain");
 }
 
 void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
@@ -102,11 +102,8 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
         const float lfoValue = std::sin(2.0f * juce::MathConstants<float>::pi * lfoPhase);
         currentFreq = minFreqFloat + (maxFreqFloat - minFreqFloat) * (0.5f + 0.5f * lfoValue);
 
-
         osc.setFrequency(currentFreq);
         gain.setGainLinear(zSliderFloat/6);
-        
-
     }
 
 
@@ -117,8 +114,6 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
     // Handles stereo
     for (int channel = 0; channel < outputBuffer.getNumChannels(); ++channel)
     {
-
-
         outputBuffer.addFrom(channel, startSample,
             synthBuffer, channel % synthBuffer.getNumChannels(),
             0, numSamples);

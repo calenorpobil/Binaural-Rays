@@ -29,6 +29,8 @@ private:
     // access the processor object that created it.
     TapSynthAudioProcessor& audioProcessor;
 
+    float heigth = 500, width = 400;
+
     // Min Slider
     juce::Slider minFreqSlider;
     juce::Label minLabel;
@@ -44,9 +46,12 @@ private:
     // Y Slider
     juce::Slider ySlider;
     juce::Label yLabel;
-    // Z Slider
-    juce::Slider zSlider;
-    juce::Label zLabel;
+    // Gain Slider
+    juce::Slider gainSlider;
+    juce::Label gainLabel;
+    // Dimension Slider
+    juce::Slider dimensionSlider;
+    juce::Label dimensionLabel;
 
 
 
@@ -57,6 +62,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> xAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> yAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> zAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dimensionAttachment;
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (TapSynthAudioProcessorEditor)

@@ -14,6 +14,7 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
     : AudioProcessorEditor(&p), audioProcessor(p) {
 
     // Configuracion del slider de velocidad
+    
     lfoSpeedSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     lfoSpeedSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     //lfoSpeedSlider.setRange(0.1, 5.0, 0.01);  // Coincide con el rango del parametro
@@ -36,14 +37,18 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
     xSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
     ySlider.setSliderStyle(juce::Slider::LinearVertical);
     ySlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
-    zSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    zSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+    gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
+    gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
+
+    dimensionSlider.setSliderStyle(juce::Slider::LinearHorizontal);
+    dimensionSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
 
     addAndMakeVisible(minFreqSlider);
     addAndMakeVisible(maxFreqSlider);
     addAndMakeVisible(xSlider);
     addAndMakeVisible(ySlider);
-    addAndMakeVisible(zSlider);
+    addAndMakeVisible(gainSlider);
+    addAndMakeVisible(dimensionSlider);
 
     // Configure labels
     minLabel.setText("Minimum Pitch (Hz)", juce::dontSendNotification);
@@ -66,10 +71,15 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
     yLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(yLabel);
 
-    zLabel.setText("Gain", juce::dontSendNotification);
-    zLabel.attachToComponent(&zSlider, false);
-    zLabel.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(zLabel);
+    gainLabel.setText("Gain", juce::dontSendNotification);
+    gainLabel.attachToComponent(&gainSlider, false);
+    gainLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(gainLabel);
+
+    dimensionLabel.setText("Size of the box (square meters)", juce::dontSendNotification);
+    dimensionLabel.attachToComponent(&dimensionSlider, false);
+    dimensionLabel.setJustificationType(juce::Justification::centred);
+    addAndMakeVisible(dimensionLabel);
 
     // Vincular sliders a etiquetas
     minFreqAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
@@ -79,22 +89,21 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
         audioProcessor.getState(), "maxFreq", maxFreqSlider));
 
     lfoSpeedAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
-        audioProcessor.getState(),
-        "lfoSpeed", lfoSpeedSlider));
+        audioProcessor.getState(), "lfoSpeed", lfoSpeedSlider));
 
     xAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
-        audioProcessor.getState(),
-        "x", xSlider));
+        audioProcessor.getState(), "x", xSlider));
 
     yAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
-        audioProcessor.getState(),
-        "y", ySlider));
+        audioProcessor.getState(), "y", ySlider));
 
     zAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
-        audioProcessor.getState(),
-        "z", zSlider));
+        audioProcessor.getState(), "gain", gainSlider));
 
-    setSize (400, 500);
+    dimensionAttachment.reset(new juce::AudioProcessorValueTreeState::SliderAttachment(
+        audioProcessor.getState(), "dimension", dimensionSlider));
+
+    setSize (width, heigth);
 }
 
 TapSynthAudioProcessorEditor::~TapSynthAudioProcessorEditor()
@@ -109,15 +118,50 @@ void TapSynthAudioProcessorEditor::paint (juce::Graphics& g)
 
 void TapSynthAudioProcessorEditor::resized()
 {
-    const int margin = 20;
-    const int sliderWidth = 150;
-    const int sliderHeight = 150;
+    const int xMargin = 20, yMargin = 60;
+    const int sliderWidth = getWidth() / 4;
+    const int sliderHeight = getHeight() / 4; 
 
-    minFreqSlider.setBounds(margin, 40, sliderWidth * 2 / 3, sliderHeight * 2 / 3);
-    lfoSpeedSlider.setBounds(getWidth() / 2 - sliderWidth / 2, 40, sliderWidth * 2 / 3, sliderWidth * 2 / 3);
-    maxFreqSlider.setBounds(getWidth() - sliderWidth - margin, 40, sliderWidth * 2 / 3, sliderHeight * 2 / 3);
+    // First row
+    minFreqSlider.setBounds(
+        xMargin, 
+        yMargin, 
+        sliderWidth, 
+        sliderHeight);
 
-    xSlider.setBounds(margin, getHeight()/2, sliderWidth * 2 / 3, sliderHeight * 2 / 3);
-    ySlider.setBounds(getWidth() / 2 - sliderWidth / 2, getHeight()/2, sliderWidth * 2 / 3, sliderWidth * 2 / 3);
-    zSlider.setBounds(getWidth() - sliderWidth - margin, getHeight()/2, sliderWidth * 2 / 3, sliderHeight * 2 / 3);
+    lfoSpeedSlider.setBounds(
+        getWidth() / 2 - sliderWidth / 2, 
+        yMargin,
+        sliderWidth, 
+        sliderHeight);
+
+    maxFreqSlider.setBounds(
+        getWidth() - sliderWidth - xMargin, 
+        yMargin,
+        sliderWidth, 
+        sliderHeight);
+
+    // Second row
+    xSlider.setBounds(
+        xMargin, 
+        yMargin*2 + sliderHeight, 
+        sliderWidth, 
+        sliderHeight);
+    ySlider.setBounds(
+        getWidth() / 2 - sliderWidth / 2,
+        yMargin*2 + sliderHeight,
+        sliderWidth, 
+        sliderHeight);
+    gainSlider.setBounds(
+        getWidth() - sliderWidth - xMargin, 
+        yMargin*2 + sliderHeight, 
+        sliderWidth, 
+        sliderHeight);
+
+    // Third row
+    dimensionSlider.setBounds(
+        xMargin,
+        yMargin * 3 + sliderHeight * 2,
+        getWidth() - xMargin * 2,
+        sliderHeight);
 }

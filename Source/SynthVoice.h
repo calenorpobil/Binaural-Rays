@@ -18,7 +18,7 @@ class SynthVoice : public juce::SynthesiserVoice
 public:
     SynthVoice()
     {
-        adsrParams.attack = 0.05f;
+        adsrParams.attack = 0.02f;
         adsrParams.decay = 0.1f;
         adsrParams.sustain = 0.1f;
         adsrParams.release = 0.1f;
@@ -44,7 +44,7 @@ private:
     std::atomic<float>* maxFreq = nullptr;
     std::atomic<float>* zDepth = nullptr;
 
-    juce::dsp::Oscillator<float> osc{ [](float x) { return x / juce::MathConstants<float>::pi; } };
+    juce::dsp::Oscillator<float> osc{ [](float x) { return std::sin(x); } };
     // return std::sin(x); } };                           Sin wave oscillator
     // return x < 0.0f ? -1.0f : 1.0f; } };               Square wave oscillator
     // return x / juce::MathConstants<float>::pi; } };    Saw wave oscillator

@@ -53,15 +53,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout TapSynthAudioProcessor::crea
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "x", "X",
-        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 30.0f));
+        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 50.0f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "y", "Y",
         juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 50.0f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
-        "z", "Z",
+        "gain", "Gain",
         juce::NormalisableRange<float>(0.0f, 1.0f, 0.05f), 0.5f));
+
+    params.push_back(std::make_unique<juce::AudioParameterFloat>(
+        "dimension", "Dimension",
+        juce::NormalisableRange<float>(0.1f, 10.0f, 0.1f), 1.0f));
 
     return { params.begin(), params.end() };
 }
@@ -207,20 +211,32 @@ void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     lfoSpeed = apvts->getRawParameterValue("lfoSpeed")->load();
     horizontalPosition = apvts->getRawParameterValue("x")->load();
     verticalPosition = apvts->getRawParameterValue("y")->load();
-    zDepth = apvts->getRawParameterValue("z")->load();
+    zDepth = apvts->getRawParameterValue("gain")->load();
+    dimension = apvts->getRawParameterValue("dimension")->load();
 
+    // Distance from 0 to 141,42 (diagonal from 100 to 100)
     lDistance = sqrt(juce::square(horizontalPosition - leftEarX) + juce::square(leftEarY - verticalPosition));
     rDistance = sqrt(juce::square(horizontalPosition - rightEarX) + juce::square(rightEarY - verticalPosition));
 
-    float leftD = (currentSampleRate / 1000.0f)* lDistance;
-    float rightD = (currentSampleRate / 1000.0f)* rDistance;
+    // Normalized distance relative to the maxDistance, from 0 to 100:
+    float maxDistanceToEar = sqrt(juce::square(maxDistance - leftEarX) + juce::square(maxDistanceToEar - leftEarY));
+    lDistance = 100 * lDistance / maxDistanceToEar;
+    rDistance = 100 * rDistance / maxDistanceToEar;
+
+    // Distance in meters:
+    lDistance = lDistance * dimension/100;
+    rDistance = rDistance * dimension/100;
+
+
+    float leftD = (currentSampleRate / 1000.0f)* lDistance*100;
+    float rightD = (currentSampleRate / 1000.0f)* rDistance*100;
     
     delayLineL.setDelay(leftD);
     delayLineR.setDelay(rightD);
     float gainLValue = (maxDistance - lDistance) / maxDistance;
     float gainRValue = (maxDistance - rDistance) / maxDistance;
-    gainL.setGainLinear(gainLValue);
-    gainR.setGainLinear(gainRValue);
+    //gainL.setGainLinear(gainLValue);
+    //gainR.setGainLinear(gainRValue);
 
     // Primitive sequencer
     msCount = time.getMillisecondCounterHiRes();
@@ -271,7 +287,9 @@ void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
                 ? delayLineL.popSample(0)
                 : delayLineR.popSample(0);
 
-            //channelData[sample] = inputSample + 0.5f * delayedSample;
+            // Mixed signal: 
+            // channelData[sample] = inputSample + 0.5f * delayedSample;
+            // Wet signal: 
             channelData[sample] =  delayedSample;
 
             // Push new sample into delay buffer
