@@ -53,15 +53,15 @@ juce::AudioProcessorValueTreeState::ParameterLayout TapSynthAudioProcessor::crea
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "x", "X",
-        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 0.0f));
+        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 30.0f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "y", "Y",
-        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 0.0f));
+        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 50.0f));
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>(
         "z", "Z",
-        juce::NormalisableRange<float>(1.0f, 100.0f, 1.0f), 0.0f));
+        juce::NormalisableRange<float>(0.0f, 1.0f, 0.05f), 0.5f));
 
     return { params.begin(), params.end() };
 }
@@ -163,6 +163,8 @@ void TapSynthAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBloc
     // Psychoacoustic gain
     gainL.prepare(spec);
     gainL.setGainLinear(1.0f);
+    gainR.prepare(spec);
+    gainR.setGainLinear(1.0f);
 }
 
 
@@ -205,6 +207,7 @@ void TapSynthAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     lfoSpeed = apvts->getRawParameterValue("lfoSpeed")->load();
     horizontalPosition = apvts->getRawParameterValue("x")->load();
     verticalPosition = apvts->getRawParameterValue("y")->load();
+    zDepth = apvts->getRawParameterValue("z")->load();
 
     lDistance = sqrt(juce::square(horizontalPosition - leftEarX) + juce::square(leftEarY - verticalPosition));
     rDistance = sqrt(juce::square(horizontalPosition - rightEarX) + juce::square(rightEarY - verticalPosition));

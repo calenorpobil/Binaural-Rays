@@ -34,9 +34,6 @@ public:
     void prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels);
     void renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startSample, int numSamples) override;
 
-    void setLeftDelayTime(float delayMs);
-    void setRightDelayTime(float delayMs);
-
 private:
     juce::ADSR adsr;
     juce::ADSR::Parameters adsrParams;
@@ -45,12 +42,13 @@ private:
     std::atomic<float>* lfoSpeed = nullptr;
     std::atomic<float>* minFreq = nullptr;
     std::atomic<float>* maxFreq = nullptr;
+    std::atomic<float>* zDepth = nullptr;
 
-    juce::dsp::Oscillator<float> osc{ [](float x) { return std::sin(x); } };
-    juce::dsp::Gain<float> gain;
+    juce::dsp::Oscillator<float> osc{ [](float x) { return x / juce::MathConstants<float>::pi; } };
     // return std::sin(x); } };                           Sin wave oscillator
     // return x < 0.0f ? -1.0f : 1.0f; } };               Square wave oscillator
     // return x / juce::MathConstants<float>::pi; } };    Saw wave oscillator
+    juce::dsp::Gain<float> gain;
 
 
     float lfoPhase = 0.0f;

@@ -42,6 +42,7 @@ void SynthVoice::updateParams(const juce::AudioProcessorValueTreeState& apvts)
     lfoSpeed = apvts.getRawParameterValue("lfoSpeed");
     minFreq = apvts.getRawParameterValue("minFreq");
     maxFreq = apvts.getRawParameterValue("maxFreq");
+    zDepth = apvts.getRawParameterValue("z");
 }
 
 void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outputChannels)
@@ -57,7 +58,7 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
 
     osc.prepare(spec);
     gain.prepare(spec);
-    gain.setGainLinear(0.3f);
+    gain.setGainLinear(0.5f);
     // Prepare delay lines
 
     synthBuffer.setSize(outputChannels, samplesPerBlock);
@@ -68,7 +69,6 @@ void SynthVoice::prepareToPlay(double sampleRate, int samplesPerBlock, int outpu
 void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int startSample, int numSamples)
 {
     jassert(isPrepared);
-
 
     if (!isVoiceActive())
         return;
@@ -85,6 +85,8 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
     float lfoSpeedFloat = lfoSpeed->load();
     float minFreqFloat = minFreq->load();
     float maxFreqFloat = maxFreq->load();
+    float zSliderFloat = zDepth->load();
+
     if (lfoSpeed != nullptr && minFreq != nullptr) {
 
         // Velocidad del cambio de pitch
@@ -102,6 +104,8 @@ void SynthVoice::renderNextBlock(juce::AudioBuffer< float >& outputBuffer, int s
 
 
         osc.setFrequency(currentFreq);
+        gain.setGainLinear(zSliderFloat/6);
+        
 
     }
 

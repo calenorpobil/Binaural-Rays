@@ -78,16 +78,18 @@ private:
     double currentSampleRate = 44100.0;
     const float lfoFreq = 0.5f;
 
+    // Graphic parameters
     float minFreq;
     float maxFreq;
     float lfoSpeed;
+    float horizontalPosition = 0.0f;
+    float verticalPosition = 20.0f;
+    float zDepth;
 
     const int midiChannel = 1;
     const int midiNoteNumber = 20; // C4
     const float velocity = 0.2f;
 
-    float horizontalPosition = 0.0f;
-    float verticalPosition = 20.0f;
 
     float maxDistance = 100.0f;
     float rightEarX = (maxDistance / 2) + 0.2f * maxDistance;

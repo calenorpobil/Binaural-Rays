@@ -38,9 +38,6 @@ private:
     // LFO Slider
     juce::Slider lfoSpeedSlider;
     juce::Label lfoSpeedLabel;
-    // Gain Slider
-    juce::Slider gainSlider;
-    juce::Label gainLabel;
     // X Slider
     juce::Slider xSlider;
     juce::Label xLabel;

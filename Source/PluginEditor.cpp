@@ -13,21 +13,10 @@
 TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p) {
 
-    // Configuracion del slider de ganancia
-    gainSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
-    gainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
-    gainSlider.setRange(0.1, 5.0, 0.01);  // Coincide con el rango del parmetro
-    addAndMakeVisible(gainSlider);
-
-    gainLabel.setText("Gain", juce::dontSendNotification);
-    gainLabel.attachToComponent(&gainSlider, false);
-    gainLabel.setJustificationType(juce::Justification::centred);
-    addAndMakeVisible(gainLabel);
-
     // Configuracion del slider de velocidad
     lfoSpeedSlider.setSliderStyle(juce::Slider::RotaryHorizontalVerticalDrag);
     lfoSpeedSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 80, 20);
-    lfoSpeedSlider.setRange(0.1, 5.0, 0.01);  // Coincide con el rango del parmetro
+    //lfoSpeedSlider.setRange(0.1, 5.0, 0.01);  // Coincide con el rango del parametro
     addAndMakeVisible(lfoSpeedSlider);
 
     lfoSpeedLabel.setText("Speed", juce::dontSendNotification);
@@ -56,7 +45,7 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
     addAndMakeVisible(ySlider);
     addAndMakeVisible(zSlider);
 
-    // Configurar labels
+    // Configure labels
     minLabel.setText("Minimum Pitch (Hz)", juce::dontSendNotification);
     minLabel.attachToComponent(&minFreqSlider, false);
     minLabel.setJustificationType(juce::Justification::centred);
@@ -72,12 +61,12 @@ TapSynthAudioProcessorEditor::TapSynthAudioProcessorEditor(TapSynthAudioProcesso
     xLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(xLabel);
 
-    yLabel.setText("X", juce::dontSendNotification);
-    yLabel.attachToComponent(&xSlider, false);
+    yLabel.setText("Y", juce::dontSendNotification);
+    yLabel.attachToComponent(&ySlider, false);
     yLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(yLabel);
 
-    zLabel.setText("X", juce::dontSendNotification);
+    zLabel.setText("Gain", juce::dontSendNotification);
     zLabel.attachToComponent(&zSlider, false);
     zLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(zLabel);
@@ -124,11 +113,11 @@ void TapSynthAudioProcessorEditor::resized()
     const int sliderWidth = 150;
     const int sliderHeight = 150;
 
-    minFreqSlider.setBounds(margin, 40, sliderWidth, sliderHeight);
-    lfoSpeedSlider.setBounds(getWidth() / 2 - sliderWidth / 2, 40, sliderWidth, sliderWidth);
-    maxFreqSlider.setBounds(getWidth() - sliderWidth - margin, 40, sliderWidth, sliderHeight);
+    minFreqSlider.setBounds(margin, 40, sliderWidth * 2 / 3, sliderHeight * 2 / 3);
+    lfoSpeedSlider.setBounds(getWidth() / 2 - sliderWidth / 2, 40, sliderWidth * 2 / 3, sliderWidth * 2 / 3);
+    maxFreqSlider.setBounds(getWidth() - sliderWidth - margin, 40, sliderWidth * 2 / 3, sliderHeight * 2 / 3);
 
-    xSlider.setBounds(margin, getHeight()/2, sliderWidth, sliderHeight);
-    ySlider.setBounds(getWidth() / 2 - sliderWidth / 2, getHeight()/2, sliderWidth, sliderWidth);
-    zSlider.setBounds(getWidth() - sliderWidth - margin, getHeight()/2, sliderWidth, sliderHeight);
+    xSlider.setBounds(margin, getHeight()/2, sliderWidth * 2 / 3, sliderHeight * 2 / 3);
+    ySlider.setBounds(getWidth() / 2 - sliderWidth / 2, getHeight()/2, sliderWidth * 2 / 3, sliderWidth * 2 / 3);
+    zSlider.setBounds(getWidth() - sliderWidth - margin, getHeight()/2, sliderWidth * 2 / 3, sliderHeight * 2 / 3);
 }
